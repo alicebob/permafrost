@@ -1,0 +1,15 @@
+#!/bin/sh
+cat > map.js <<HERE
+map={
+HERE
+for url in $(cat urls); do
+    echo $url
+    curl -s https://$url -o file.tmp
+    sum=$(sha1sum file.tmp | colrm 41)
+    mv file.tmp pool/$sum
+    echo "  \"http://$url\": \"$sum\"," >> map.js
+    echo "  \"https://$url\": \"$sum\"," >> map.js
+done
+cat >> map.js <<HERE
+}
+HERE
