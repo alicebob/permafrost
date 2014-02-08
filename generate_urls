@@ -1,0 +1,34 @@
+#!/usr/bin/env perl
+## Ah, c'mon. I never get to use Perl anymore nowadays!
+#
+# Loads all obvious URLS from google's library listing.
+#
+# Use as:
+# curl -s https://developers.google.com/speed/libraries/devguide | this.thing > urls
+#
+use strict;
+use warnings;
+local $/ = undef;
+my $html = <>;
+
+# The page isn't valid XML, so some simple regexes to find the libraries will do.
+while ($html =~ m|<dl>(.*?)</dl>|sg) {
+    my $lib = $1;
+    my ($title) = ($lib =~ m|<dt>(.*?)</dt>|);
+    next if not $title;
+    #print("$title\n");
+
+    # Note: this misses the css for 'jQuery mobile' and others.
+    my ($baseurl) = ($lib =~ m|src="//(ajax.googleapis.com/ajax/libs/.*?)"|);
+    $baseurl =~ s|\d[\d.]+|XXXX|; # version number changes in the base url.
+    #print("$baseurl\n");
+    while ($lib =~ m|<span class="versions">(.*?)</span>|sg) {
+        for my $version (split /,/, $1) {
+            $version =~ s/\s//g;
+            #print(" $title: -$version\n");
+            my $url = $baseurl;
+            $url =~ s/XXXX/$version/;
+            print("$url\n");
+        }
+    }
+}
