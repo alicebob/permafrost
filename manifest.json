@@ -12,8 +12,8 @@
     "permissions": [
         "webRequest",
         "webRequestBlocking",
-        "http://ajax.googleapis.com/*",
-        "https://ajax.googleapis.com/*"
+        "http://ajax.googleapis.com/ajax/libs/*",
+        "https://ajax.googleapis.com/ajax/libs/*"
     ],
     "web_accessible_resources": [
         "pool/*"

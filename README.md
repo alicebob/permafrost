@@ -11,6 +11,6 @@ Saves some HTTP request time, but mostly gives Google one less way to track you.
 
 
 # TODO
-- css files are not loaded yet.
-- non-obvious files, such as scriptaculous/1.8.1/builder.js and scriptaculous/1.8.1/controls.js are not found in the mirroring process.
+- not all css files (and used images) are loaded yet.
+- not all non-obvious javascript files are found yet. Some are loaded sneakily.
 

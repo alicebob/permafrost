@@ -11,14 +11,17 @@ use warnings;
 local $/ = undef;
 my $html = <>;
 
+my %libs;
+
 # The page isn't valid XML, so some simple regexes to find the libraries will do.
 while ($html =~ m|<dl>(.*?)</dl>|sg) {
     my $lib = $1;
     my ($title) = ($lib =~ m|<dt>(.*?)</dt>|);
     next if not $title;
     #print("$title\n");
+    #
+    $libs{$title} = [];
 
-    # Note: this misses the css for 'jQuery mobile' and others.
     my ($baseurl) = ($lib =~ m|src="//(ajax.googleapis.com/ajax/libs/.*?)"|);
     $baseurl =~ s|\d[\d.]+|XXXX|; # version number changes in the base url.
     #print("$baseurl\n");
@@ -29,6 +32,29 @@ while ($html =~ m|<dl>(.*?)</dl>|sg) {
             my $url = $baseurl;
             $url =~ s/XXXX/$version/;
             print("$url\n");
+            push $libs{$title}, $version;
         }
     }
+}
+
+## Special cases.
+# CSS for jQuery Mobile
+for my $v (@{$libs{"jQuery Mobile"}}) {
+    ## TODO: there are image files linked in the stylesheet
+    print("ajax.googleapis.com/ajax/libs/jquerymobile/$v/jquery.mobile.min.css\n");
+}
+# jQuerty themes
+# ... and all the images they need :/
+#
+
+# script.aculo.us might load more files.
+for my $v (@{$libs{"script.aculo.us"}}) {
+    print <<HERE
+ajax.googleapis.com/ajax/libs/scriptaculous/$v/builder.js
+ajax.googleapis.com/ajax/libs/scriptaculous/$v/controls.js
+ajax.googleapis.com/ajax/libs/scriptaculous/$v/dragdrop.js
+ajax.googleapis.com/ajax/libs/scriptaculous/$v/effects.js
+ajax.googleapis.com/ajax/libs/scriptaculous/$v/slider.js
+ajax.googleapis.com/ajax/libs/scriptaculous/$v/sound.js
+HERE
 }
