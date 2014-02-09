@@ -1,11 +1,10 @@
 function onBeforeRequestHandler(details) {
-    local = map[details.url];
-    if (! local) {
-        console.log("Permafrost missing: ", details.url);
-        // Don't show anything if we don't have the file.
-        return { "cancel": true };
-    };
-    var url = chrome.extension.getURL("/pool/" + local);
+    var match = details.url.match(/ajax.googleapis.com\/ajax\/libs\/(.*)/);
+    if (! match) {
+        // Not for us.
+        return { "cancel": false };
+    }
+    var url = chrome.extension.getURL("/pool/" + match[1].replace(/\//g, "_"));
     console.log("Permafrost serving: ", details.url);
     return { "redirectUrl": url };
 
@@ -15,7 +14,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     onBeforeRequestHandler,
     {
         "urls": [
-            "*://ajax.googleapis.com/*"
+            "*://ajax.googleapis.com/ajax/libs/*"
         ]
     },
     [ "blocking" ]

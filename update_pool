@@ -1,16 +1,8 @@
 #!/bin/sh
-rm -f -- pool/*
-cat > map.js <<HERE
-map={
-HERE
+set -e
+#rm -f pool/*
 for url in $(cat urls); do
     echo $url
-    curl -s https://$url -o file.tmp
-    sum=$(sha1sum file.tmp | colrm 41)
-    mv file.tmp pool/$sum
-    echo "  \"http://$url\": \"$sum\"," >> map.js
-    echo "  \"https://$url\": \"$sum\"," >> map.js
+    filename=$(echo $url | perl -pe's|ajax.googleapis.com/ajax/libs/||; s|/|_|g;')
+    curl -s http://$url -o pool/$filename
 done
-cat >> map.js <<HERE
-}
-HERE
