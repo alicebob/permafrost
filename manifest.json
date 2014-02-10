@@ -5,7 +5,7 @@
     "description": "Local ajax.googleapis.com",
     "author": "Harmen",
     "background": {
-        "page": "background.html"
+        "scripts": ["background.js"]
     },
     "homepage_url": "https://github.com/alicebob/permafrost",
     "minimum_chrome_version": "22.0",
