@@ -4,7 +4,7 @@ function onBeforeRequestHandler(details) {
         // Not for us.
         return { "cancel": false };
     }
-    var url = chrome.extension.getURL("/pool/" + match[1].replace(/\//g, "_"));
+    var url = chrome.extension.getURL("/pool/" + match[1]);
     console.log("Permafrost serving: ", details.url);
     return { "redirectUrl": url };
 

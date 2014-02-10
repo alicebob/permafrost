@@ -11,6 +11,5 @@ Saves some HTTP request time, but mostly gives Google one less way to track you.
 
 
 # TODO
-- not all css files (and used images) are loaded yet.
-- not all non-obvious javascript files are found yet. Some are loaded sneakily.
-
+- all jQueryUI themes.
+- ext

@@ -3,6 +3,10 @@ set -e
 #rm -f pool/*
 for url in $(cat urls); do
     echo $url
-    filename=$(echo $url | perl -pe's|ajax.googleapis.com/ajax/libs/||; s|/|_|g;')
-    curl -s http://$url -o pool/$filename
+    #filename=$(echo $url | perl -pe's|ajax.googleapis.com/ajax/libs/||; s|/|_|g;')
+    filename=$(echo $url | perl -pe's|ajax.googleapis.com/ajax/libs/||;')
+    mkdir -p pool/$(dirname $filename)
+    if [ ! -e pool/$filename ] ; then
+        curl -s http://$url -o pool/$filename
+    fi
 done
