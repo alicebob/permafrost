@@ -13,6 +13,8 @@ use File::Path qw(make_path);
 my $UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36";
 local $\ = "\n";
 
+my $pooldir = $ENV{"POOLDIR"} || "./pool";
+
 # given "1.2.3" will return ("1", "1.2", "1.2.3")
 sub version_variations($) {
     my $version = shift;
@@ -46,7 +48,7 @@ sub mirror($) {
     my $content = get($url);
     return if not $content;
     $url =~ m|ajax.googleapis.com/ajax/libs/(.*/)([^/]+)$|;
-    my $path = "pool/$1";
+    my $path = "$pooldir/$1";
     my $filename = $2;
     make_path($path) or die "Can't make_path: $!" if ! -e $path;
     open(my $fh, ">", $path . $filename) or die "Can't open file: $!";
