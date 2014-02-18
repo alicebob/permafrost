@@ -5,7 +5,7 @@ function onBeforeRequestHandler(details) {
         return { "cancel": false };
     }
     var url = chrome.extension.getURL("/pool/" + match[1]);
-    console.log("Permafrost serving: ", details.url);
+    // console.log("Permafrost serving: ", details.url);
     return { "redirectUrl": url };
 
 }
