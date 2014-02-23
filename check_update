@@ -3,7 +3,7 @@
 # If so a new release should be build.
 # Intented to be run via cron.
 
-rm -rf new.pool/
-POOLDIR=./new.pool ./update_pool > /dev/null
-
-diff -r pool/ new.pool/
+rm -rf old.pool
+cp -r {,old.}pool
+make sitemap slowmirror pool
+diff -r {,old.}pool

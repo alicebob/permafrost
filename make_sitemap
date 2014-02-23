@@ -1,0 +1,103 @@
+#!/usr/bin/env perl
+# Make a sitemap.
+#
+# Use as:
+#   ./make_sitemap > sitemap
+#
+use strict;
+use warnings FATAL=>'all';
+use LWP::UserAgent;
+use URI;
+use File::Path qw(make_path);
+
+my $UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36";
+local $\ = "\n";
+
+my $BASE = "http://ajax.googleapis.com/ajax/libs/";
+my @JQUERYTHEMES = qw'base smoothness ui-darkness ui-lightness vader trontastic swanky-purse sunny start south-street redmond pepper-grinder overcast mint-choc le-frog humanity hot-sneaks flick excite-bike eggplant dot-luv dark-hive cupertino blitzer black-tie';
+
+# given "1.2.3" will return ("1", "1.2", "1.2.3")
+sub version_variations($) {
+    my $version = shift;
+    my @chunks = ();
+    my @components = ();
+    for (split /\./, $version) {
+        push @components, $_;
+        push @chunks, join ".", @components;
+    }
+    return @chunks;
+}
+
+
+# simple http get.
+sub get($) {
+    my $url = shift;
+    $url = "http:$url" if $url =~ m|^//|;
+
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($UA);
+    my $res = $ua->get($url);
+    return if not $res->is_success;
+    return $res->content;
+}
+
+
+my $devguide = get("https://developers.google.com/speed/libraries/devguide");
+die "Can't load library overview" if not $devguide;
+
+# The page isn't valid XML, so some simple regexes to find the libraries will do.
+while ($devguide =~ m|<dl>(.*?)</dl>|sg) {
+    my $lib = $1;
+    my ($title) = ($lib =~ m|<dt>(.*?)</dt>|);
+    next if not $title;
+    print(STDERR "$title");
+
+    my ($baseurl) = ($lib =~ m|src="(//ajax.googleapis.com/ajax/libs/.*?)"|);
+    $baseurl =~ s|\d[\d.]+|XXXX|; # version number changes in the base url.
+    my %seen;
+    while ($lib =~ m|<span class="versions">(.*?)</span>|sg) {
+        for my $version (split /,/, $1) {
+            $version =~ s/\s//g;
+            my $url = $baseurl;
+            $url =~ s/XXXX/$version/;
+            # version "1.2.3" might also be available as "1.2" and "1".
+            # Note: not every library has all versions available.
+            for my $big_v (version_variations($version)) {
+                next if $seen{$big_v};
+                $seen{$big_v} = 1;
+
+                my $url = $baseurl;
+                $url =~ s/XXXX/$big_v/;
+            
+                my $page = get($url);
+                next if not $page;
+                print(STDERR " $title: $big_v");
+                print("http:$url");
+
+                # Some js files have a .map file
+                if ($page =~ /sourceMappingURL=([\w.]+)/) {
+                    print("http:" . URI->new_abs($1, $url));
+                }
+
+                ## jQuery UI themes
+                if ($title eq "jQuery UI") {
+                    for my $theme (@JQUERYTHEMES) {
+                        print("${BASE}jqueryui/$version/themes/$theme/jquery-ui.css");
+                    }
+                }
+
+                # CSS for jQuery Mobile
+                if ($title eq "jQuery Mobile") {
+                    print("${BASE}jquerymobile/$version/jquery.mobile.min.css");
+                }
+
+                # script.aculo.us
+                if ($title eq "script.aculo.us") {
+                    for my $file (qw'builder controls dragdrop effects slider sound') {
+                        print("${BASE}scriptaculous/$version/$file.js");
+                    }
+                }
+            }
+        }
+    }
+}
