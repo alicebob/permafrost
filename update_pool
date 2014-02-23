@@ -15,6 +15,9 @@ local $\ = "\n";
 
 my $pooldir = $ENV{"POOLDIR"} || "./pool";
 
+my $BASE = "//ajax.googleapis.com/ajax/libs/";
+my @JQUERYTHEMES = qw'base smoothness ui-darkness ui-lightness vader trontastic swanky-purse sunny start south-street redmond pepper-grinder overcast mint-choc le-frog humanity hot-sneaks flick excite-bike eggplant dot-luv dark-hive cupertino blitzer black-tie';
+
 # given "1.2.3" will return ("1", "1.2", "1.2.3")
 sub version_variations($) {
     my $version = shift;
@@ -76,7 +79,6 @@ sub css_resources($$) {
 my $devguide = get("https://developers.google.com/speed/libraries/devguide");
 die "Can't load library overview" if not $devguide;
 
-my %libs;
 # The page isn't valid XML, so some simple regexes to find the libraries will do.
 while ($devguide =~ m|<dl>(.*?)</dl>|sg) {
     my $lib = $1;
@@ -86,6 +88,7 @@ while ($devguide =~ m|<dl>(.*?)</dl>|sg) {
 
     my ($baseurl) = ($lib =~ m|src="(//ajax.googleapis.com/ajax/libs/.*?)"|);
     $baseurl =~ s|\d[\d.]+|XXXX|; # version number changes in the base url.
+    my %seen;
     while ($lib =~ m|<span class="versions">(.*?)</span>|sg) {
         for my $version (split /,/, $1) {
             $version =~ s/\s//g;
@@ -94,38 +97,47 @@ while ($devguide =~ m|<dl>(.*?)</dl>|sg) {
             # version "1.2.3" might also be available as "1.2" and "1".
             # Note: not every library has all versions available.
             for my $big_v (version_variations($version)) {
-                if (not exists $libs{$title}{$big_v}) {
+                if (not exists $seen{$big_v}) {
                     my $url = $baseurl;
                     $url =~ s/XXXX/$big_v/;
                     my $page = mirror($url);
                     next if not $page;
-                    $libs{$title}{$big_v} = 1;
+                    $seen{$big_v} = 1;
                     print(" $title: $big_v");
 
                     # Some js files have a .map file
                     if ($page =~ /sourceMappingURL=([\w.]+)/) {
                         mirror(URI->new_abs($1, $url));
                     }
+
+                    ## jQuery UI themes
+                    if ($title eq "jQuery UI") {
+                        for my $theme (@JQUERYTHEMES) {
+                            my $cssurl = "${BASE}jqueryui/$version/themes/$theme/jquery-ui.css";
+                            my $css = mirror($cssurl);
+                            if ($css) {
+                                mirror($_) for css_resources($cssurl, $css);
+                            }
+                        }
+                    }
+
+                    # CSS for jQuery Mobile
+                    if ($title eq "jQuery Mobile") {
+                        my $url = "${BASE}jquerymobile/$version/jquery.mobile.min.css";
+                        my $css = mirror($url);
+                        if ($css) {
+                            mirror($_) for css_resources($url, $css);
+                        }
+                    }
+
+                    # script.aculo.us
+                    if ($title eq "script.aculo.us") {
+                        for my $file (qw'builder controls dragdrop effects slider sound') {
+                            mirror("${BASE}scriptaculous/$version/$file.js");
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
-## Special cases.
-# CSS for jQuery Mobile
-for my $v (keys $libs{"jQuery Mobile"}) {
-    my $url = "//ajax.googleapis.com/ajax/libs/jquerymobile/$v/jquery.mobile.min.css";
-    my $css = mirror($url);
-    mirror($_) for css_resources($url, $css);
-}
-# jQuery themes
-# ... and all the images they need :/
-#
-
-# script.aculo.us
-for my $v (keys $libs{"script.aculo.us"}) {
-    for my $file (qw'builder controls dragdrop effects slider sound') {
-        mirror("//ajax.googleapis.com/ajax/libs/scriptaculous/$v/$file.js");
     }
 }
