@@ -97,6 +97,14 @@ while ($devguide =~ m|<dl>(.*?)</dl>|sg) {
                         print("${BASE}scriptaculous/$version/$file.js");
                     }
                 }
+
+                # angular
+                if ($title eq "AngularJS") {
+                    for my $file (qw'cookies resource') {
+                        print("${BASE}angularjs/$version/angular-$file.js");
+                        print("${BASE}angularjs/$version/angular-$file.min.js");
+                    }
+                }
             }
         }
     }

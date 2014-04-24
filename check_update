@@ -4,6 +4,6 @@
 # Intented to be run via cron.
 
 rm -rf old.pool
-cp -r {,old.}pool
-make sitemap slowmirror pool
-diff -r {,old.}pool
+cp -r pool old.pool
+make sitemap mirror pool
+diff -r old.pool pool
