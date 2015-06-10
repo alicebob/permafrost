@@ -50,14 +50,19 @@ while ($devguide =~ m|<h3>(.*?)</h3>.*?<dl>(.*?)</dl>|sg) {
     my $title = $1;
     my $lib = $2;
     next if not $title;
+
+    next if $title == 'Ext';
+
     print(STDERR "$title");
 
     my ($baseurl) = ($lib =~ m|src="(https://ajax.googleapis.com/ajax/libs/.*?)"|);
     $baseurl =~ s|\d[\d.]+|XXXX|; # version number changes in the base url.
     $baseurl =~ s/^https?://;
     my %seen;
-    while ($lib =~ m|<dd class="versions">(.*?)</dd>|sg) {
-        for my $version (split /,/, $1) {
+    while ($lib =~ m|<dt>(.*?)</dt>.*?<dd class="versions">(.*?)</dd>|sg) {
+        my ($section, $versions) = ($1, $2);
+        next if $section =~ /unstable/i; # unstable angular
+        for my $version (split /,/, $versions) {
             $version =~ s/\s//g;
             my $url = $baseurl;
             $url =~ s/XXXX/$version/;

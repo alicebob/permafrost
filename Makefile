@@ -7,8 +7,8 @@ sitemap:
 
 .PHONY: mirror
 mirror:
-	#wget --mirror --no-verbose --input-file=sitemap
-	for u in $$(cat sitemap); do wget --no-verbose --mirror $$u; sleep 0.5; done
+	wget --mirror --no-verbose --input-file=sitemap --wait=1
+	#for u in $$(cat sitemap); do wget --no-verbose --mirror $$u; sleep 0.5; done
 
 .PHONY: pool
 pool:
