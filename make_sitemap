@@ -42,20 +42,21 @@ sub get($) {
 }
 
 
-my $devguide = get("https://developers.google.com/speed/libraries/devguide");
+my $devguide = get("https://developers.google.com/speed/libraries/");
 die "Can't load library overview" if not $devguide;
 
 # The page isn't valid XML, so some simple regexes to find the libraries will do.
-while ($devguide =~ m|<dl>(.*?)</dl>|sg) {
-    my $lib = $1;
-    my ($title) = ($lib =~ m|<dt>(.*?)</dt>|);
+while ($devguide =~ m|<h3>(.*?)</h3>.*?<dl>(.*?)</dl>|sg) {
+    my $title = $1;
+    my $lib = $2;
     next if not $title;
     print(STDERR "$title");
 
-    my ($baseurl) = ($lib =~ m|src="(//ajax.googleapis.com/ajax/libs/.*?)"|);
+    my ($baseurl) = ($lib =~ m|src="(https://ajax.googleapis.com/ajax/libs/.*?)"|);
     $baseurl =~ s|\d[\d.]+|XXXX|; # version number changes in the base url.
+    $baseurl =~ s/^https?://;
     my %seen;
-    while ($lib =~ m|<span class="versions">(.*?)</span>|sg) {
+    while ($lib =~ m|<dd class="versions">(.*?)</dd>|sg) {
         for my $version (split /,/, $1) {
             $version =~ s/\s//g;
             my $url = $baseurl;
