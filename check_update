@@ -3,7 +3,7 @@
 # If so a new release should be build.
 # Intented to be run via cron.
 
-rm -rf old.pool
-cp -r pool old.pool
-make sitemap mirror pool
-diff -r old.pool pool
+set -e
+
+make sitemap > /dev/null 2>&1
+diff sitemap.mirrored sitemap

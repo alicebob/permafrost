@@ -9,6 +9,7 @@ sitemap:
 mirror:
 	wget --mirror --no-verbose --input-file=sitemap --wait=1
 	#for u in $$(cat sitemap); do wget --no-verbose --mirror $$u; sleep 0.5; done
+	cp sitemap sitemap.mirrored
 
 .PHONY: pool
 pool:
