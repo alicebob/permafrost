@@ -51,7 +51,7 @@ while ($devguide =~ m|<h3>(.*?)</h3>.*?<dl>(.*?)</dl>|sg) {
     my $lib = $2;
     next if not $title;
 
-    next if $title == 'Ext';
+    next if $title eq 'Ext';
 
     print(STDERR "$title");
 
