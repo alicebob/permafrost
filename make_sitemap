@@ -51,12 +51,12 @@ while ($devguide =~ m|<h3>(.*?)</h3>.*?<dl>(.*?)</dl>|sg) {
     my $lib = $2;
     next if not $title;
 
-    next if $title eq 'Ext';
+    next if $title eq 'Ext Core';
 
     print(STDERR "$title");
 
     my ($baseurl) = ($lib =~ m|src="(https://ajax.googleapis.com/ajax/libs/.*?)"|);
-    $baseurl =~ s|\d[\d.]+|XXXX|; # version number changes in the base url.
+    $baseurl =~ s|r?\d[\d.]+|XXXX|; # version number changes in the base url.
     $baseurl =~ s/^https?://;
     my %seen;
     while ($lib =~ m|<dt>(.*?)</dt>.*?<dd class="versions">(.*?)</dd>|sg) {
