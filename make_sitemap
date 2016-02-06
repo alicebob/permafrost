@@ -107,7 +107,7 @@ while ($devguide =~ m|<h3>(.*?)</h3>.*?<dl>(.*?)</dl>|sg) {
 
                 # angular
                 if ($title eq "AngularJS") {
-                    for my $file (qw'cookies resource') {
+                    for my $file (qw'aria animate cookies messages loader resource route sanitize touch') {
                         print("${BASE}angularjs/$version/angular-$file.js");
                         print("${BASE}angularjs/$version/angular-$file.min.js");
                     }
